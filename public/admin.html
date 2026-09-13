@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Key</title>
+<style>
+  body{font-family:-apple-system,sans-serif;background:#0f172a;color:#e2e8f0;
+       padding:16px;max-width:520px;margin:auto;padding-bottom:60px}
+  h2{font-size:20px}
+  label{font-size:13px;color:#94a3b8;display:block;margin-top:12px}
+  input,select,button{width:100%;padding:14px;margin-top:6px;border-radius:10px;
+                      border:none;font-size:16px;box-sizing:border-box}
+  input,select{background:#334155;color:#fff}
+  button{background:#10b981;color:#fff;font-weight:bold;margin-top:18px}
+  #out{background:#1e293b;padding:14px;border-radius:10px;margin-top:16px;
+       white-space:pre-wrap;font-size:13px;word-break:break-all;display:none}
+</style>
+</head>
+<body>
+<h2>🔑 Tạo Key</h2>
+<label>Admin Token</label>
+<input id="token" type="password" placeholder="Nhập token...">
+<label>Thời hạn</label>
+<select id="dur">
+  <option value="1h">1 Giờ</option>
+  <option value="1d">1 Ngày</option>
+  <option value="3d">3 Ngày</option>
+  <option value="7d" selected>7 Ngày</option>
+  <option value="14d">14 Ngày</option>
+  <option value="30d">30 Ngày</option>
+</select>
+<label>Số lượng</label>
+<input id="amt" type="number" value="1" min="1" max="100">
+<button onclick="create()">TẠO KEY</button>
+<div id="out"></div>
+<script>
+const API = 'https://THAY-BANG-URL-VERCEL-CUA-BAN.vercel.app';
+document.getElementById('token').value = localStorage.getItem('admin_token') || '';
+async function create() {
+  const adminToken = document.getElementById('token').value;
+  const duration = document.getElementById('dur').value;
+  const amount = parseInt(document.getElementById('amt').value);
+  const out = document.getElementById('out');
+  localStorage.setItem('admin_token', adminToken);
+  out.style.display = 'block';
+  out.textContent = '⏳ Đang tạo...';
+  try {
+    const r = await fetch(`${API}/api/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ duration, amount, adminToken })
+    });
+    const data = await r.json();
+    if (!data.success) { out.textContent = '❌ ' + data.message; return; }
+    out.textContent = '✅ Đã tạo:\n\n' + data.keys.join('\n');
+  } catch (e) { out.textContent = '❌ ' + e.message; }
+}
+</script>
+</body>
+</html>
