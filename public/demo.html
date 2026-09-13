@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Kích Hoạt Key</title>
+<style>
+  body{font-family:-apple-system,sans-serif;background:#0f172a;color:#e2e8f0;
+       display:flex;align-items:center;justify-content:center;min-height:100vh;
+       margin:0;padding:20px;box-sizing:border-box}
+  .box{background:#1e293b;padding:28px;border-radius:16px;width:100%;max-width:380px}
+  h2{font-size:20px;margin:0 0 20px}
+  input,button{width:100%;padding:14px;margin-top:10px;border-radius:10px;
+               border:none;font-size:16px;box-sizing:border-box}
+  input{background:#334155;color:#fff;text-align:center;letter-spacing:1px}
+  button{background:#3b82f6;color:#fff;font-weight:bold}
+  #log{margin-top:16px;font-size:14px;color:#94a3b8;white-space:pre-wrap}
+  .ok{color:#10b981;font-weight:bold}
+  .err{color:#ef4444;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="box">
+  <h2>🔑 Kích hoạt Key</h2>
+  <input id="key" placeholder="KEY-XXXX-XXXX-XXXX" autocapitalize="characters">
+  <button onclick="activate()">KÍCH HOẠT</button>
+  <div id="log"></div>
+</div>
+<script>
+const API = 'https://THAY-BANG-URL-VERCEL-CUA-BAN.vercel.app';
+
+function getDeviceId() {
+  let id = localStorage.getItem('device_id') || getCookie('device_id');
+  if (!id) id = 'DEV-' + crypto.randomUUID();
+  localStorage.setItem('device_id', id);
+  setCookie('device_id', id, 365);
+  return id;
+}
+function setCookie(n,v,d){const x=new Date();x.setTime(x.getTime()+d*864e5);
+  document.cookie=`${n}=${v};expires=${x.toUTCString()};path=/;SameSite=Lax`}
+function getCookie(n){const m=document.cookie.match('(^|;)\\s*'+n+'\\s*=\\s*([^;]+)');
+  return m?m.pop():''}
+
+async function activate() {
+  const key = document.getElementById('key').value.trim().toUpperCase();
+  const log = document.getElementById('log');
+  if (!key) { log.innerHTML = '<span class="err">Nhập key đã</span>'; return; }
+  log.textContent = '⏳ Đang kiểm tra...';
+  try {
+    const r = await fetch(`${API}/api/activate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, deviceId: getDeviceId() })
+    });
+    const data = await r.json();
+    if (data.success) {
+      const exp = new Date(data.expiresAt).toLocaleString('vi-VN');
+      const d = Math.floor(data.remainingMs / 864e5);
+      const h = Math.floor((data.remainingMs % 864e5) / 36e5);
+      log.innerHTML = `<span class="ok">✅ ${data.message}</span>\nHết hạn: ${exp}\nCòn: ${d} ngày ${h} giờ`;
+    } else {
+      log.innerHTML = `<span class="err">❌ ${data.message}</span>`;
+    }
+  } catch (e) { log.innerHTML = `<span class="err">❌ ${e.message}</span>`; }
+}
+document.getElementById('key').addEventListener('keypress', e => {
+  if (e.key === 'Enter') activate();
+});
+</script>
+</body>
+</html>
