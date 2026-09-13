@@ -35,7 +35,7 @@
 <button onclick="create()">TẠO KEY</button>
 <div id="out"></div>
 <script>
-const API = 'https://sever-key1.vercel.app/admin.html';
+const API = 'https://sever-key1.vercel.app';
 document.getElementById('token').value = localStorage.getItem('admin_token') || '';
 async function create() {
   const adminToken = document.getElementById('token').value;
