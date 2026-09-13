@@ -1,5 +1,5 @@
 const { customAlphabet } = require('nanoid');
-const supabase = require('./_db');
+const supabase = require('./db');
 const nanoid = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 4);
 const genKey = () => `KEY-${nanoid()}-${nanoid()}-${nanoid()}`;
 const DURATIONS = { '1h':1, '1d':24, '3d':72, '7d':168, '14d':336, '30d':720 };
