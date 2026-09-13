@@ -1,4 +1,4 @@
-const supabase = require('./_db');
+const supabase = require('./db');
 
 module.exports = async (req, res) => {
   const { key, deviceId } = req.query;
